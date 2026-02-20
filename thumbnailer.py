@@ -89,9 +89,10 @@ def download_thumbnail(video_id: str, output_path: Path, verbose: bool = False) 
         candidates = [f for f in Path(tmpdir).iterdir() if f.is_file()]
 
         if not candidates:
-            print(f"    [yt-dlp] No thumbnail file written.")
-            if capture and yt_result.stderr.strip():
-                for line in yt_result.stderr.strip().splitlines():
+            print(f"    [yt-dlp] No thumbnail file written (exit {yt_result.returncode})")
+            if capture:
+                output = (yt_result.stdout + yt_result.stderr).strip()
+                for line in output.splitlines():
                     print(f"    [yt-dlp] {line}")
             return False
 
