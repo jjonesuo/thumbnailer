@@ -65,16 +65,13 @@ def download_thumbnail(video_id: str, output_path: Path, verbose: bool = False) 
     url = f"https://www.youtube.com/watch?v={video_id}"
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        # Use a fixed basename so we can reliably find the file afterwards.
-        # yt-dlp appends the thumbnail format extension (e.g. .webp, .jpg).
-        output_template = os.path.join(tmpdir, "thumb")
-
+        # Run yt-dlp with cwd=tmpdir so its output lands there regardless of
+        # how it resolves the output template under --skip-download.
         yt_cmd = [
             "yt-dlp",
             "--write-thumbnail",
             "--skip-download",
             "--no-playlist",
-            "-o", output_template,
             url,
         ]
 
@@ -83,6 +80,7 @@ def download_thumbnail(video_id: str, output_path: Path, verbose: bool = False) 
             yt_cmd,
             capture_output=capture,
             text=True,
+            cwd=tmpdir,
         )
 
         # Discover whatever yt-dlp wrote (name may vary by version / thumbnail format)
