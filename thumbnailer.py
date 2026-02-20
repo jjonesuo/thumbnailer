@@ -134,7 +134,9 @@ def scan_directory(
     video_files = sorted(
         f
         for f in directory.glob(pattern)
-        if f.is_file() and f.suffix.lower() in VIDEO_EXTENSIONS
+        if f.is_file()
+        and f.suffix.lower() in VIDEO_EXTENSIONS
+        and not f.name.startswith("._")  # skip macOS resource fork files
     )
 
     if not video_files:
