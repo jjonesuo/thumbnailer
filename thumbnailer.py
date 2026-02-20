@@ -18,7 +18,7 @@ Usage:
 Options:
   -r, --recursive      Scan subdirectories recursively
   -n, --dry-run        Print what would be done without downloading
-  --skip-existing      Skip files that already have a -poster.jpg alongside them
+  -f, --force          Re-download thumbnails even if a -poster.jpg already exists
   -v, --verbose        Show full yt-dlp and ffmpeg output
 """
 
@@ -127,7 +127,7 @@ def scan_directory(
     directory: Path,
     recursive: bool,
     dry_run: bool,
-    skip_existing: bool,
+    force: bool,
     verbose: bool,
 ) -> None:
     pattern = "**/*" if recursive else "*"
@@ -159,7 +159,7 @@ def scan_directory(
 
         poster_path = video_file.parent / (video_file.stem + "-poster.jpg")
 
-        if skip_existing and poster_path.exists():
+        if not force and poster_path.exists():
             print(f"  SKIP  {video_file.name}")
             print(f"        Reason : poster already exists ({poster_path.name})")
             skipped += 1
@@ -202,11 +202,11 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
-            "  thumbnailer.py                        # scan current directory\n"
-            "  thumbnailer.py ~/Videos               # scan ~/Videos\n"
-            "  thumbnailer.py -r ~/Videos            # scan recursively\n"
-            "  thumbnailer.py -n ~/Videos            # dry run\n"
-            "  thumbnailer.py --skip-existing ~/Videos\n"
+            "  thumbnailer.py                  # scan current directory\n"
+            "  thumbnailer.py ~/Videos         # scan ~/Videos\n"
+            "  thumbnailer.py -r ~/Videos      # scan recursively\n"
+            "  thumbnailer.py -n ~/Videos      # dry run\n"
+            "  thumbnailer.py -f ~/Videos      # re-download existing posters\n"
         ),
     )
     parser.add_argument(
@@ -226,9 +226,9 @@ def main() -> None:
         help="Show what would be done without downloading anything",
     )
     parser.add_argument(
-        "--skip-existing",
+        "-f", "--force",
         action="store_true",
-        help="Skip video files that already have a -poster.jpg alongside them",
+        help="Re-download thumbnails even if a -poster.jpg already exists",
     )
     parser.add_argument(
         "-v", "--verbose",
@@ -247,7 +247,7 @@ def main() -> None:
         directory=directory,
         recursive=args.recursive,
         dry_run=args.dry_run,
-        skip_existing=args.skip_existing,
+        force=args.force,
         verbose=args.verbose,
     )
 
